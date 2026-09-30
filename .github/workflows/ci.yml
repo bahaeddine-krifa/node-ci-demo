@@ -9,9 +9,11 @@ on:
     branches:
       - master
 
+env:
+  NODE_ENV: test
+
 jobs:
   test:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -22,9 +24,26 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
       - name: Run tests
         run: npm test
+
+      - name: Create build directory
+        run: |
+          mkdir dist
+          cp calculator.js dist/
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: calculator-build
+          path: dist/
+          
+      - name: Use secret
+        env:
+            DEMO_MESSAGE: ${{ secrets.DEMO_MESSAGE }}
+        run: echo "Secret is configured"  
